@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace bytedock {
 
 #if ENABLE_DOUBLE_PRECISION
@@ -27,7 +29,8 @@ typedef float param_t;
 
 // Refer to https://stackoverflow.com/a/36594669/28276974
 using size_t = decltype(sizeof(int));
-typedef size_t index_t;
+
+typedef std::int32_t index_t;
 
 constexpr param_t operator ""_r(long double value) {
     return (param_t)value;
