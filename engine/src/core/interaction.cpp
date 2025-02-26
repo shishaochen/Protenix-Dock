@@ -114,7 +114,25 @@ param_t fourier_dihedral_interaction::put_gradients(
     return energy;
 }
 
+#ifdef ENABLE_SIMD_AVX2
 param_t self_nonbonded_interactions::put_gradients(
+    const molecule_pose& mol_xyz,
+    const force_field_params& mol_ffdata,
+    molecule_pose& xyz_gradient
+) {
+    if (!mol_ffdata.precalculated) throw std::runtime_error(
+        "Please call precalculate_intra_nonbonded_params(...) on ffdata first!"
+    );
+    auto energy = calculate_nb_pairs(mol_ffdata.pairs, coul14_scale_, vdw14_scale_,
+                                     mol_xyz, xyz_gradient);
+    energy += calculate_nb_pairs(mol_ffdata.others, 1_r, 1_r, mol_xyz, xyz_gradient);
+    return energy;
+}
+
+param_t self_nonbonded_interactions::put_gradients_nosimd(
+#else
+param_t self_nonbonded_interactions::put_gradients(
+#endif
     const molecule_pose& mol_xyz,
     const force_field_params& mol_ffdata,
     molecule_pose& xyz_gradient

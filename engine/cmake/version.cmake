@@ -31,7 +31,11 @@ endif()
 
 set(VERSION "namespace bytedock {
 
+#if ENABLE_SIMD_AVX2
+const char* VERSION_STR = \"ProtenixDock+AVX2 ${GIT_BRANCH}@${GIT_REV}${GIT_DIFF}\";
+#else
 const char* VERSION_STR = \"ProtenixDock ${GIT_BRANCH}@${GIT_REV}${GIT_DIFF}\";
+#endif
 
 }
 ")
