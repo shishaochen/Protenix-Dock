@@ -197,13 +197,7 @@ bool pose_ranker::preprocess(pose_batch& aggregated) {
         }
     }
     aggregated.best_id = best_id;
-    {
-        step_timer t(EVALUATE_AFFINITY_SCORE_STEP);
-        auto& bb = sf_mgr_.get_affinity_ranking();
-        auto& best_pose = candidates[best_id];
-        aggregated.bscore = bb.combine(best_pose.receptor_xyz, receptor_ffdata,
-                                       best_pose.ligand_xyz, ligand_ffdata, tmp);
-    }
+    aggregated.bscore = -1_r;
     return true;
 }
 

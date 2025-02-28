@@ -25,12 +25,7 @@ if(BDOCK_AVX2)
 endif()
 
 option(BDOCK_PYSDK "If set, Build a Python module. Otherwise, build command-line binaries." OFF)
-if(BDOCK_PYSDK)
-  set(BDOCK_VETOS OFF)
-else()
-  set(BDOCK_VETOS ON)
-  add_definitions(-DENABLE_VETOS_ACCESS=1)
-endif()
+set(BDOCK_VETOS OFF)
 
 # Add a custom command that produces version.cpp, plus a dummy output that's not actually
 # produced, in order to force version.cmake to always be re-run before the build.
@@ -108,6 +103,12 @@ target_link_libraries(bdgen Dock_LIBRARY ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 add_executable(bdscr ${Dock_SOURCE_DIR}/cli/bdscr.cpp)
 target_link_libraries(bdscr Dock_LIBRARY ${Boost_PROGRAM_OPTIONS_LIBRARY})
+
+add_executable(debug_simd ${Dock_SOURCE_DIR}/cli/debug_simd.cpp)
+target_link_libraries(debug_simd Dock_LIBRARY ${Boost_PROGRAM_OPTIONS_LIBRARY})
+if(BDOCK_AVX2)
+  target_compile_options(debug_simd PRIVATE "-mavx2" "-mfma")
+endif()
 endif()
 
 if(BDOCK_PYSDK)
@@ -129,7 +130,7 @@ endif()
 if(BDOCK_PYSDK)
   set_target_properties(_protenix_dock PROPERTIES INSTALL_RPATH "\${ORIGIN}")
 else()
-  set_target_properties(bdock bdopt bdgen bdscr PROPERTIES
+  set_target_properties(bdock bdopt bdgen bdscr debug_simd PROPERTIES
                         INSTALL_RPATH "\${ORIGIN}/../lib")
 endif()
 
@@ -139,7 +140,7 @@ if(BDOCK_PYSDK)
   install(TARGETS Dock_LIBRARY _protenix_dock
           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 else()
-  install(TARGETS bdock bdopt bdgen bdscr
+  install(TARGETS bdock bdopt bdgen bdscr debug_simd
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 if(BDOCK_VETOS)
